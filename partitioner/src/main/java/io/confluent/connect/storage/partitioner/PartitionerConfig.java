@@ -92,6 +92,8 @@ public class PartitionerConfig extends AbstractConfig implements ComposableConfi
       "The record field to be used as timestamp by the timestamp extractor.";
   public static final String TIMESTAMP_FIELD_NAME_DEFAULT = "timestamp";
   public static final String TIMESTAMP_FIELD_NAME_DISPLAY = "Record Field for Timestamp Extractor";
+  public static final String PARTITION_TIME_FIELD_FORMAT_CONFIG = "timestamp.field.format";
+  public static final String PARTITION_TIME_FIELD_FORMAT_DEFAULT = "yyyMMdd";
 
   /**
    * Create a new configuration definition.
