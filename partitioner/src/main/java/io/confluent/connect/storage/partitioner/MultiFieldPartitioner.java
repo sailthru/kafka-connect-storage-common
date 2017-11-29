@@ -19,35 +19,48 @@ package io.confluent.connect.storage.partitioner;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.text.SimpleDateFormat;
 import java.util.Map;
 
-public class MultiFieldPartitioner<T> extends FieldPartitioner<T> {
+public class MultiFieldPartitioner<T> extends TimeBasedPartitioner<T> {
 
   private static final Logger log = LoggerFactory.getLogger(MultiFieldPartitioner.class);
-  private static String timeField;
-  private static String timeFormat;
-  private TimeBasedPartitioner<T> timeBasedPartitioner = new TimeBasedPartitioner<>();
-  private SimpleDateFormat mDtFormatter;
-  private String[] handledDateFormats = {"yyyMMdd", "yyyy-MM-dd'T'HH:mm:ss", "epoch_secs"};
+//  private static String timeField;
+//  private static String timeFormat;
+  private FieldPartitioner<T> fieldPartitioner = new FieldPartitioner<>();
+  private TimestampExtractor backupExtractor;
+//  private SimpleDateFormat mDtFormatter;
+//  private String[] handledDateFormats = {"yyyMMdd", "yyyy-MM-dd'T'HH:mm:ss", "epoch_secs"};
 
   @Override
   public void configure(Map<String, Object> config) {
-    super.configure(config);
+    fieldPartitioner.configure(config);
     try {
       config.put(PartitionerConfig.SCHEMA_GENERATOR_CLASS_CONFIG, Class.forName("io.confluent.connect.storage.hive.schema.TimeBasedSchemaGenerator"));
     } catch (ClassNotFoundException e) {
       log.error("Class not found ", e);
     }
-    timeBasedPartitioner.configure(config);
+    if (config.get(PartitionerConfig.TIMESTAMP_EXTRACTOR_CLASS_CONFIG) != null && config.get(PartitionerConfig.TIMESTAMP_EXTRACTOR_CLASS_CONFIG).equals("Record")) {
+      if (config.containsKey(PartitionerConfig.TIMESTAMP_FIELD_NAME_CONFIG)) {
+        backupExtractor = newTimestampExtractor("RecordField");
+        backupExtractor.configure(config);
+      }
+    }
+
+    super.configure(config);
   }
 
   @Override
   public String encodePartition(SinkRecord sinkRecord) {
     log.info("MULTI FIELD PARITIONER ENCODING PARITION");
-    String fieldPartition = super.encodePartition(sinkRecord);
-    String timePartition = timeBasedPartitioner.encodePartition(sinkRecord);
+    String timePartition;
+    try {
+      timePartition = super.encodePartition(sinkRecord);
+    } catch (Exception e) {
+      log.warn("Couldn't extract time stamp trying back up");
+      timestampExtractor = backupExtractor;
+      timePartition = super.encodePartition(sinkRecord);
+    }
+    String fieldPartition = fieldPartitioner.encodePartition(sinkRecord);
     return "dt=" + timePartition + delim + fieldPartition;
   }
 
