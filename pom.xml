@@ -70,7 +70,7 @@
         <confluent.version>4.1.0-SNAPSHOT</confluent.version>
         <hadoop.version>2.7.3</hadoop.version>
         <hive.version>1.2.2</hive.version>
-        <joda.version>2.9.6</joda.version>
+        <joda.version>2.10.10</joda.version>
         <licenses.version>4.1.0-SNAPSHOT</licenses.version>
         <parquet.version>1.8.2</parquet.version>
         <httpclient.version>4.5.2</httpclient.version>
@@ -173,20 +173,20 @@
                 <inherited>true</inherited>
                 <configuration>
                     <compilerArguments>
-                        <Xlint:all/>
+                        <Xlint:all xmlns:Xlint=""/>
                         <!-- bootstrap class path not set in conjunction with -source 1.7 -->
-                        <Xlint:-options/>
+                        &lt;Xlint:-options/>
                         <!-- serializable class ... has no definition of serialVersionUID -->
-                        <Xlint:-serial/>
+                        &lt;Xlint:-serial/>
                         <!-- bad path element ".../repository/org/apache/derby/derby/10.10.2.0/derbyLocale_*.jar": no such file or directory -->
-                        <Xlint:-path/>
+                        &lt;Xlint:-path/>
                         <!--
                         WALFile.java:[333,16] [deprecation] sync() in Syncable has been deprecated
                         Apparently SuppressWarnings("deprecation") doesn't cover this on JDK 7
                         -->
-                        <Xlint:-deprecation/>
+                        &lt;Xlint:-deprecation/>
                         <!-- Needed for DataWriter.java because @SuppressWarnings("unchecked") doesn't cover this on JDK 7 -->
-                        <Xlint:-unchecked/>
+                        &lt;Xlint:-unchecked/>
                         <Werror/>
                     </compilerArguments>
                     <showWarnings>true</showWarnings>
